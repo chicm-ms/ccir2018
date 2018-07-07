@@ -5,7 +5,6 @@ from collections import Counter
 from torchtext.vocab import Vocab
 import settings
 
-DATA_BIN_DIR = settings.DATA_BIN_DIR
 VOCAB_DIR = settings.VOCAB_DIR
 
 def load_dict(dict, id_file, prefix):
@@ -202,9 +201,30 @@ def load_favs():
     with open(os.path.join(VOCAB_DIR, 'favs.pk'), 'rb') as f:
         return pickle.load(f)
 
+def build_test_dataset():
+    doc_vocab = load_doc_vocab()
+    user_vocab = load_user_vocab()
+    
+    build_test_sequence(os.path.join(settings.TEST_DATA_DIR, 'test.pk'), doc_vocab, user_vocab)
+
+def build_small_train_dataset():
+    doc_vocab = load_doc_vocab()
+    user_vocab = load_user_vocab()
+    label_vocab = load_label_vocab()
+
+    min_index = 0
+    max_index = 1000
+    for i in range(3):
+        print('train{}.pk'.format(i))
+        build_train_sequence(os.path.join(settings.VAL_DIR, 'val{}.pk'.format(i)), doc_vocab, user_vocab, label_vocab, min_index=min_index, max_index=max_index)
+        min_index += 1000
+        max_index += 1000
 
 
 if __name__ == '__main__':
+
+    build_small_train_dataset()
+
     #vocab = build_doc_vocab(os.path.join(DATA_BIN_DIR, 'doc_vocab.pk'))
     #long2short = build_longid_dict()
     #print(len(vocab))
@@ -224,11 +244,7 @@ if __name__ == '__main__':
     #print(label_vocab.itos[0])
     #print(len(label_vocab.itos))
 
-    doc_vocab = load_doc_vocab()
-    user_vocab = load_user_vocab()
-    label_vocab = load_label_vocab()
-
-    build_test_sequence(os.path.join(settings.TEST_DATA_DIR, 'test.pk'), doc_vocab, user_vocab)
+    
     #topic_vocab = build_topic_vocab(os.path.join(DATA_BIN_DIR, 'topic_vocab.pk'))
     #build_favoriates(os.path.join(DATA_BIN_DIR, 'favs.pk'), topic_vocab)
 
