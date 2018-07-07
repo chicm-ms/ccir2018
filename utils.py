@@ -1,5 +1,6 @@
 import os
 import glob
+import shutil
 import argparse
 import re
 import time
@@ -103,8 +104,10 @@ def make_tensor(data, user_vocab, fav_dict, train=True):
 def save_model(args, model):
     if not os.path.exists(args.model_dir):
         os.mkdir(args.model_dir)
-    filename = 'best{}.pth'.format(random.randint(1,3))
-    torch.save(model.state_dict(), os.path.join(args.model_dir, filename))
+    backupfile = os.path.join(args.model_dir, 'best{}.pth'.format(random.randint(1,5)))
+    filename = os.path.join(args.model_dir, 'best.pth')
+    shutil.copy(filename, backupfile)
+    torch.save(model.state_dict(), filename)
 
 
 def accuracy(output, label, topk=(1,100)):

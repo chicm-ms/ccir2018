@@ -1,0 +1,5 @@
+VOCAB_DIR = r'/home/chicm/data/ccir2018/vocab'
+TRAIN_DIR = r'/home/chicm/data/ccir2018/train_bin'
+VAL_DIR = r'/home/chicm/data/ccir2018/val'
+MODEL_DIR = r'/home/chicm/data/ccir2018/models'
+TEST_DATA_DIR = r'/home/chicm/data/ccir2018/test'

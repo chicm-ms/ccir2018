@@ -23,21 +23,6 @@ def get_data_loader(args):
     print('train file: ', filename)
     return CCIRDataLoader(filename, batch_size=args.batch_size, shuffle=True)
 
-
-def test_loader(args):
-    loader = get_data_loader(args)
-    for data in loader:
-        user, read, unread, label = make_tensor(data)
-        print(user.size(), read.size(), unread.size(), label.size())
-        print(user, read, unread, label)
-        break
-
-def save_model(args, model):
-    if not os.path.exists(args.model_dir):
-        os.mkdir(args.model_dir)
-    filename = 'best{}.pth'.format(random.randint(1,3))
-    torch.save(model.state_dict(), os.path.join(args.model_dir, filename))
-
 def validate(model, val_iter, criterion):
     model.eval()
     val_loss = 0
@@ -126,9 +111,9 @@ if __name__ == '__main__':
     parser.add_argument("--batch_size", type=int, default=64, help="Batch size", required=False)
     parser.add_argument('--epochs', type=int, default=20, help='Number of training epochs', required=False)
     parser.add_argument('--data_dir', type=str, default='data', help='Directory to put training data', required=False)
-    parser.add_argument('--model_dir', type=str, default=r'D:\CCIR2018\data\models', help='Directory to save models', required=False)
-    parser.add_argument('--train_from', type=str, default=r'D:\CCIR2018\data\models\best1.pth', help='Directory to save models', required=False)
-    parser.add_argument('--dataset', type=str, default=r'G:\ccir2018\train_bin\train2.pk', help='dataset filename', required=False)
+    parser.add_argument('--model_dir', type=str, default=settings.MODEL_DIR, help='Directory to save models', required=False)
+    parser.add_argument('--train_from', type=str, default=os.path.join(settings.MODEL_DIR, 'best.pth'), help='Directory to save models', required=False)
+    parser.add_argument('--dataset', type=str, help='dataset filename', required=True)
 
     args, unknown = parser.parse_known_args()
 

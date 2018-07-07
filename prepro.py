@@ -223,7 +223,28 @@ def build_small_train_dataset():
 
 if __name__ == '__main__':
 
-    build_small_train_dataset()
+    # build vocab run once
+    build_doc_vocab(os.path.join(VOCAB_DIR, 'doc_vocab.pk'))
+    build_user_vocab(os.path.join(VOCAB_DIR, 'user_vocab.pk'))
+    topic_vocab = build_topic_vocab(os.path.join(VOCAB_DIR, 'topic_vocab.pk'))
+    build_favoriates(os.path.join(VOCAB_DIR, 'favs.pk'), topic_vocab)
+    build_label_vocab(os.path.join(VOCAB_DIR, 'labels.pk'))
+
+    # Then build train files
+    doc_vocab = load_doc_vocab()
+    user_vocab = load_user_vocab()
+    label_vocab = load_label_vocab()
+
+    min_index = 0
+    max_index = 1000000
+    for i in range(25):
+        print('train{}.pk'.format(i))
+        build_train_sequence(os.path.join(settings.TRAIN_DIR, 'train{}.pk'.format(i)), doc_vocab, user_vocab, label_vocab, min_index=min_index, max_index=max_index)
+        min_index += 1000000
+        max_index += 1000000
+
+
+    #build_small_train_dataset()
 
     #vocab = build_doc_vocab(os.path.join(DATA_BIN_DIR, 'doc_vocab.pk'))
     #long2short = build_longid_dict()

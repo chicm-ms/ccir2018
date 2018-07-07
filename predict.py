@@ -14,7 +14,7 @@ from dataset import CCIRDataLoader
 from utils import Model, make_tensor
 from prepro import load_doc_vocab, load_label_vocab, load_user_vocab, load_favs, load_topic_vocab
 
-CP = r'D:\ccir2018\data\models\best1.pth'
+CP =  os.path.join(settings.MODEL_DIR, 'best3.pth')
 
 def predict():
     print('Loading user vocab...')
@@ -53,11 +53,11 @@ def predict():
         else:
             preds = np.vstack((preds, pred))
     print(preds.shape)
-    np.save(os.path.join(settings.DATA_BIN_DIR, 'preds.npy'), preds)
+    np.save(os.path.join(settings.RESULT_DIR, 'preds0708.npy'), preds)
 
 def make_submit():
     label_vocab = load_label_vocab()
-    preds = np.load(os.path.join(settings.DATA_BIN_DIR, 'preds.npy'))
+    preds = np.load(os.path.join(settings.RESULT_DIR, 'preds0708.npy'))
     
     print(preds[0])
 
@@ -69,10 +69,11 @@ def make_submit():
         assert(len(set(submit_line)) == 100)
         submits.append(submit_line)
 
-    with open(os.path.join(settings.DATA_BIN_DIR, 'sub1.txt'), 'w') as f:
+    with open(os.path.join(settings.RESULT_DIR, 'sub0708.csv'), 'w') as f:
         for line in submits:
             f.write(','.join(line)+'\n')
 
 
 if __name__ == '__main__':
+    #predict()
     make_submit()
