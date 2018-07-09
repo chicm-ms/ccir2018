@@ -16,6 +16,8 @@ from prepro import load_doc_vocab, load_label_vocab, load_user_vocab, load_favs,
 
 CP =  os.path.join(settings.MODEL_DIR, 'best.pth')
 
+NPY_FILE = 'preds0710_1.npy'
+
 def predict():
     print('Loading user vocab...')
     user_vocab = load_user_vocab()
@@ -53,11 +55,11 @@ def predict():
         else:
             preds = np.vstack((preds, pred))
     print(preds.shape)
-    np.save(os.path.join(settings.RESULT_DIR, 'preds0708_2.npy'), preds)
+    np.save(os.path.join(settings.RESULT_DIR, NPY_FILE), preds)
 
 def make_submit():
     label_vocab = load_label_vocab()
-    preds = np.load(os.path.join(settings.RESULT_DIR, 'preds0708_2.npy'))
+    preds = np.load(os.path.join(settings.RESULT_DIR, NPY_FILE))
     
     print(preds[0])
 
@@ -69,7 +71,7 @@ def make_submit():
         assert(len(set(submit_line)) == 100)
         submits.append(submit_line)
 
-    with open(os.path.join(settings.RESULT_DIR, 'sub0708_2.csv'), 'w') as f:
+    with open(os.path.join(settings.RESULT_DIR, 'sub0710_1.csv'), 'w') as f:
         for line in submits:
             f.write(','.join(line)+'\n')
 

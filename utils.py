@@ -55,7 +55,7 @@ def test_forward():
     out = model(fav, read, unread).squeeze()
     print(out.size())
 
-
+MAX_FAV_LEN = 160
 PAD_INDEX = 1
 def make_tensor(data, user_vocab, fav_dict, train=True):
     #print(data)
@@ -75,6 +75,14 @@ def make_tensor(data, user_vocab, fav_dict, train=True):
                 exit(0)
         user, read, unread, label = batch
 
+        fav = fav_dict[user_vocab.itos[user]]
+        if fav is None:
+            fav = []
+        if len(fav) > MAX_FAV_LEN and train:
+            continue
+        maxfavlen = max(maxfavlen, len(fav))
+        favs.append(fav)
+
         maxlen = max(maxlen, len(read))
         maxlen = max(maxlen, len(unread))
         #users.append(user)
@@ -82,12 +90,6 @@ def make_tensor(data, user_vocab, fav_dict, train=True):
         unreads.append(sorted(unread))
         if train:
             labels.append(label)
-
-        fav = fav_dict[user_vocab.itos[user]]
-        if fav is None:
-            fav = []
-        maxfavlen = max(maxfavlen, len(fav))
-        favs.append(fav)
 
     for i in range(len(reads)):
         reads[i].extend([PAD_INDEX]*(maxlen - len(reads[i])))
