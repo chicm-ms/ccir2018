@@ -18,7 +18,7 @@ from utils import Model, make_tensor, accuracy, save_model
 
 def get_data_loader(args, epoch):
     train_list = glob.glob(os.path.join(settings.TRAIN_DIR, 'train*.pk'))
-    print(train_list)
+    #print(train_list)
     filename = train_list[epoch % len(train_list)]
     #filename = args.dataset
     print('train file: ', filename)
@@ -44,6 +44,9 @@ def validate(model, val_iter, criterion):
 
 
 def train(args):
+    train_list = glob.glob(os.path.join(settings.TRAIN_DIR, 'train*.pk'))
+    print(train_list)
+
     print('Loading user vocab...')
     user_vocab = load_user_vocab()
     print('Loading doc vocab...')
@@ -62,8 +65,8 @@ def train(args):
         model.load_state_dict(torch.load(args.train_from))
 
     criterion = nn.CrossEntropyLoss()
-    #optimizer = optim.Adam(model.parameters(), lr=args.lr)
-    optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=0.9)
+    optimizer = optim.Adam(model.parameters(), lr=args.lr)
+    #optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=0.9)
     
     for epoch in range(args.epochs):
         train_corrects = 0
@@ -98,7 +101,7 @@ def train(args):
 
             if nIteration % 500 == 0:
                 save_model(args, model)
-        log.info('acc: {:.2f}%'.format(100. * train_corrects / numTrain))
+        log.info('train acc: {:.2f}% {}'.format(100. * train_corrects / numTrain, args.lr))
         save_model(args, model)
             #if nIteration % 200 == 0:
             #    print('\n')
@@ -110,7 +113,7 @@ def train(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--lr", type=float, default=0.01, help="Learning rate", required=False)
+    parser.add_argument("--lr", type=float, default=0.001, help="Learning rate", required=False)
     parser.add_argument("--batch_size", type=int, default=1024, help="Batch size", required=False)
     parser.add_argument('--epochs', type=int, default=1500, help='Number of training epochs', required=False)
     parser.add_argument('--data_dir', type=str, default='data', help='Directory to put training data', required=False)
@@ -120,13 +123,13 @@ if __name__ == '__main__':
 
     args, unknown = parser.parse_known_args()
 
-    log.basicConfig(filename = 'trainlog.txt', level = log.DEBUG)
+    log.basicConfig(
+        filename = 'trainlog.txt', 
+        format   = '%(asctime)s : %(message)s',
+        datefmt  = '%Y-%m-%d %H:%M:%S', 
+        level = log.DEBUG)
 
     #test_loader(args)
-    try:
-        train(args)
-    except:
-        print('exception')
+    train(args)
     print('done...')
-    exit(0)
     #test_forward()
