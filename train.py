@@ -100,9 +100,9 @@ def train(args):
                 100. * train_corrects / numTrain), end='\r')
 
             if nIteration % 500 == 0:
-                save_model(args, model)
+                save_model(args, model, epoch)
         log.info('train acc: {:.2f}% {}'.format(100. * train_corrects / numTrain, args.lr))
-        save_model(args, model)
+        save_model(args, model, epoch)
             #if nIteration % 200 == 0:
             #    print('\n')
             #    val_loss, corrects, num = validate(model, val_iter, criterion)
@@ -113,7 +113,7 @@ def train(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--lr", type=float, default=0.001, help="Learning rate", required=False)
+    parser.add_argument("--lr", type=float, default=0.0002, help="Learning rate", required=False)
     parser.add_argument("--batch_size", type=int, default=1024, help="Batch size", required=False)
     parser.add_argument('--epochs', type=int, default=1500, help='Number of training epochs', required=False)
     parser.add_argument('--data_dir', type=str, default='data', help='Directory to put training data', required=False)

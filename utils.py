@@ -103,10 +103,10 @@ def make_tensor(data, user_vocab, fav_dict, train=True):
     else:
         return torch.LongTensor(favs).cuda(), torch.LongTensor(reads).cuda(), torch.LongTensor(unreads).cuda()
 
-def save_model(args, model):
+def save_model(args, model, epoch):
     if not os.path.exists(args.model_dir):
         os.mkdir(args.model_dir)
-    backupfile = os.path.join(args.model_dir, 'best{}.pth'.format(random.randint(1,5)))
+    backupfile = os.path.join(args.model_dir, 'best{}.pth'.format(epoch % 5 + 1))
     filename = os.path.join(args.model_dir, 'best.pth')
     shutil.copy(filename, backupfile)
     torch.save(model.state_dict(), filename)
