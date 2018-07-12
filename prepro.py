@@ -1,4 +1,5 @@
 import os
+import sys
 import random
 import pickle
 from collections import Counter
@@ -109,7 +110,7 @@ def build_favoriates(output_file, topic_vocab):
         pickle.dump(fav_dict, f)
     return fav_dict
 
-def get_train_indices(line, stoi, user_vocab, label_vocab):
+def get_train_indices_old(line, stoi, user_vocab, label_vocab):
     line_arr = line.strip().split('\t')
     if line_arr[1] == '0':
         return None
@@ -121,6 +122,26 @@ def get_train_indices(line, stoi, user_vocab, label_vocab):
 
     label = label_vocab.stoi[line_arr[-1]]
     return user_vocab.stoi[line_arr[0]], [stoi[item] for item in read_seq], [stoi[item] for item in unread_seq], label
+
+def get_train_indices(line, stoi, user_vocab, label_vocab):
+    fields = line.strip().split('\t')
+    if not len(fields) == 8:
+        raise ValueError('Num of fields: {}, Error line:{}'.format(len(fields), line))
+    if not int(fields[1]) >= 0:
+        raise ValueError('field 1: {}'.format(fields[1]))
+    
+    if fields[1] == '0':
+        seq = []
+    else:
+        seq = fields[2].split(',')
+    
+    read_seq = [item.split('|')[0] for item in seq if item.split('|')[2] != '0']
+    unread_seq = [item.split('|')[0] for item in seq if item.split('|')[2] == '0']
+
+    label = label_vocab.stoi[fields[-1]]
+    if label == 0:
+        raise ValueError('Lable not found: [{}]'.format(fields[-1]))
+    return user_vocab.stoi[fields[0]], [stoi[item] for item in read_seq], [stoi[item] for item in unread_seq], label
 
 def get_test_indices(line, stoi, user_vocab):
     line_arr = line.strip().split('\t')
@@ -140,8 +161,47 @@ def get_test_indices(line, stoi, user_vocab):
 
     return user_vocab.stoi[line_arr[0]], [stoi[item] for item in read_seq], [stoi[item] for item in unread_seq], search_seq
 
+def build_train_sequence(output_dir, doc_vocab, user_vocab, label_vocab):
+    print('building dataset into: ', output_dir)
+    train_file_len = 1000000
+    result = []
+    error_num = 0
+    file_no = 1
+    with open(os.path.join(settings.DATA_DIR, 'training_set.txt'), 'r', encoding='UTF-8') as f:
+        i = 0
+        for line in f:
+            i += 1
+            if i % 100000 == 0:
+                print(i)
+            try:
+                res = get_train_indices(line, doc_vocab.stoi, user_vocab, label_vocab)
+                result.append(res)
+            except:
+                info = sys.exc_info()  
+                print(info[0], ":", info[1])
 
-def build_train_sequence(output_file, doc_vocab, user_vocab, label_vocab, min_index = 0, max_index = 1000000):
+                error_num += 1
+                print('error:', error_num)
+                continue
+
+            if i % train_file_len == 0:
+                output_file = os.path.join(output_dir, 'train{}.pk'.format(file_no))
+                print(i, 'saving {} records to {}'.format(len(result), output_file))
+                with open(output_file, 'wb') as fres:
+                    pickle.dump(result, fres)
+                    fres.flush()
+                    result = []
+                    file_no += 1
+    
+    output_file = os.path.join(output_dir, 'train{}.pk'.format(file_no))
+    print('saving {} records to {}'.format(len(result), output_file))
+    with open(output_file, 'wb') as f:
+        pickle.dump(result, f)
+        f.flush()
+        result = []
+
+
+def build_train_sequence_old(output_file, doc_vocab, user_vocab, label_vocab, min_index = 0, max_index = 1000000):
     result = []
     error_num = 0
     with open(os.path.join(settings.DATA_DIR, 'training_set.txt'), 'r', encoding='UTF-8') as f:
@@ -153,7 +213,7 @@ def build_train_sequence(output_file, doc_vocab, user_vocab, label_vocab, min_in
             if i > max_index:
                 break
             try:
-                res = get_train_indices(line, doc_vocab.stoi, user_vocab, label_vocab)
+                res = get_train_indices_old(line, doc_vocab.stoi, user_vocab, label_vocab)
             except:
                 i += 1
                 error_num += 1
@@ -216,7 +276,7 @@ def build_small_train_dataset():
     max_index = 1000
     for i in range(3):
         print('train{}.pk'.format(i))
-        build_train_sequence(os.path.join(settings.VAL_DIR, 'val{}.pk'.format(i)), doc_vocab, user_vocab, label_vocab, min_index=min_index, max_index=max_index)
+        build_train_sequence_old(os.path.join(settings.VAL_DIR, 'val{}.pk'.format(i)), doc_vocab, user_vocab, label_vocab, min_index=min_index, max_index=max_index)
         min_index += 1000
         max_index += 1000
 
@@ -236,14 +296,15 @@ if __name__ == '__main__':
     doc_vocab = load_doc_vocab()
     user_vocab = load_user_vocab()
     label_vocab = load_label_vocab()
+    build_train_sequence(settings.TRAIN_DIR, doc_vocab, user_vocab, label_vocab)
 
-    min_index = 0
-    max_index = 1000000
-    for i in [1,2,10,11,12,13,14,15]:
-        min_index = (i-1)*1000000
-        max_index = min_index + 1000000 -1
-        print('train{}.pk'.format(i))
-        build_train_sequence(os.path.join(settings.TRAIN_DIR, 'train{}.pk'.format(i)), doc_vocab, user_vocab, label_vocab, min_index=min_index, max_index=max_index)
+    #min_index = 0
+    #max_index = 1000000
+    #for i in [1,2,10,11,12,13,14,15]:
+    #    min_index = (i-1)*1000000
+    #    max_index = min_index + 1000000 -1
+    #    print('train{}.pk'.format(i))
+    #    build_train_sequence_old(os.path.join(settings.TRAIN_DIR, 'train{}.pk'.format(i)), doc_vocab, user_vocab, label_vocab, min_index=min_index, max_index=max_index)
 
 
     #build_small_train_dataset()

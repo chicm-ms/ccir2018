@@ -62,7 +62,7 @@ def train(args):
     model = Model(len(topic_vocab.stoi), len(doc_vocab.stoi), len(label_vocab.stoi)).cuda()
     if args.train_from:
         print('Loading checkpoint: ', args.train_from)
-        model.load_state_dict(torch.load(args.train_from))
+        #model.load_state_dict(torch.load(args.train_from))
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=args.lr)

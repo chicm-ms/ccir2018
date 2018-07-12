@@ -32,7 +32,7 @@ def predict():
 
     filename = os.path.join(settings.TEST_DATA_DIR, 'test.pk')
     print('test file: ', filename)
-    loader = CCIRDataLoader(filename, batch_size=64, shuffle=False)
+    loader = CCIRDataLoader(filename, batch_size=256, shuffle=False)
 
     print(len(topic_vocab.stoi), len(doc_vocab.stoi), len(label_vocab.stoi))
     model = Model(len(topic_vocab.stoi), len(doc_vocab.stoi), len(label_vocab.stoi)).cuda()

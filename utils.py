@@ -124,3 +124,20 @@ def accuracy(output, label, topk=(1,100)):
         correct_k = correct[:k].view(-1).sum().item()
         res.append(correct_k)
     return res
+
+if __name__ == '__main__':
+    print('Loading user vocab...')
+    user_vocab = load_user_vocab()
+    print('Loading favs...')
+    fav_dict = load_favs()
+    
+    filename = r'G:\ccir2018\train_bin\train23.pk'
+    #filename = os.path.join(settings.TRAIN_DIR, 'train1.pk')
+    loader = CCIRDataLoader(filename, batch_size=5, shuffle=False)
+    for data in loader:
+        favs, read, unread, label = make_tensor(data, user_vocab, fav_dict)
+        print(favs)
+        print(read)
+        print(unread)
+        print(label)
+        break

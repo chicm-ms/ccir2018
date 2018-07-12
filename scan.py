@@ -55,20 +55,28 @@ def scan(filename):
                 break
             count += 1
 
-def scan_zero_reads():
+def scan_zero_reads(filename, num_fields=8):
     count = 0
     i = 0
     unreads = 0
-    with open(os.path.join(settings.DATA_DIR, 'training_set.txt'), 'r', encoding='UTF-8') as f:
+    with open(os.path.join(settings.DATA_DIR, filename), 'r', encoding='UTF-8') as f:
         for line in f:
             fields = line.split('\t')
-            if not len(fields) == 8:
+            if not len(fields) == num_fields:
                 count += 1
                 print(count, len(fields), i)
-            if fields[1] == '0':
-                unreads += 1
-                print('unreads', unreads)
+                
+            else:
+                if fields[1] == '0':
+                    unreads += 1
+                assert int(fields[1]) >= 0
+            
+                #print('unreads', unreads)
             i += 1
+
+            if i % 100000 == 0:
+                print(i)
+                print('unreads', unreads)
             #break
 
 #scan(r'F:\competition\training_set.txt')
@@ -81,4 +89,5 @@ def scan_zero_reads():
 #most_common_fav_lengths(500)
 #most_common_fav_lengths(160)
 
-scan_zero_reads()
+#scan_zero_reads('training_set.txt')
+scan_zero_reads('testing_set_135089.txt', 5)
