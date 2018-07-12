@@ -22,7 +22,7 @@ def get_data_loader(args, epoch):
     filename = train_list[epoch % len(train_list)]
     #filename = args.dataset
     print('train file: ', filename)
-    log.info('train file: ' + filename)
+    #log.info('train file: ' + filename)
     return CCIRDataLoader(filename, batch_size=args.batch_size, shuffle=True)
 
 def validate(model, val_iter, criterion):
@@ -93,7 +93,7 @@ def train(args):
             train_corrects += top100
 
             numTrain += label.size()[0]
-            print('Epoch {}: {} / {} \tLoss: {:.4f} \tTop100: {:.2f}% ({} / {})  \tTop1: {:.2f}% ({} / {}) \tRunning Top100: {:.2f}%'
+            print('Ep {}: {}/{} \tLoss: {:.4f} \tTop100: {:.2f}% ({}/{}) \tTop1: {:.2f}% ({}/{}) \tRunning Top100: {:.2f}%'
                 .format(epoch, numTrain, loader.len, loss.item(), 
                 100. * top100 / len(data), top100, len(data),
                 100. * top1 / len(data), top1, len(data),
@@ -101,7 +101,8 @@ def train(args):
 
             if nIteration % 500 == 0:
                 save_model(args, model, epoch)
-        log.info('train acc: {:.2f}% {}'.format(100. * train_corrects / numTrain, args.lr))
+        log.info('epoch: {} dataset: {} train acc: {:.2f}%, lr: {}'.format(epoch, os.path.basename(loader.filename), 
+            100. * train_corrects / numTrain, args.lr))
         save_model(args, model, epoch)
             #if nIteration % 200 == 0:
             #    print('\n')

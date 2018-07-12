@@ -220,15 +220,17 @@ def build_small_train_dataset():
         min_index += 1000
         max_index += 1000
 
-
-if __name__ == '__main__':
-
-    # build vocab run once
+def build_vocabs():
     build_doc_vocab(os.path.join(VOCAB_DIR, 'doc_vocab.pk'))
     build_user_vocab(os.path.join(VOCAB_DIR, 'user_vocab.pk'))
     topic_vocab = build_topic_vocab(os.path.join(VOCAB_DIR, 'topic_vocab.pk'))
     build_favoriates(os.path.join(VOCAB_DIR, 'favs.pk'), topic_vocab)
     build_label_vocab(os.path.join(VOCAB_DIR, 'labels.pk'))
+
+if __name__ == '__main__':
+
+    # build vocab run once
+    
 
     # Then build train files
     doc_vocab = load_doc_vocab()
@@ -237,11 +239,11 @@ if __name__ == '__main__':
 
     min_index = 0
     max_index = 1000000
-    for i in range(25):
+    for i in [1,2,10,11,12,13,14,15]:
+        min_index = (i-1)*1000000
+        max_index = min_index + 1000000 -1
         print('train{}.pk'.format(i))
         build_train_sequence(os.path.join(settings.TRAIN_DIR, 'train{}.pk'.format(i)), doc_vocab, user_vocab, label_vocab, min_index=min_index, max_index=max_index)
-        min_index += 1000000
-        max_index += 1000000
 
 
     #build_small_train_dataset()

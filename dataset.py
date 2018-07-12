@@ -9,6 +9,7 @@ class CCIRDataLoader(object):
     def __init__(self, filename, shuffle=True, batch_size=8):
         self.shuffle = shuffle
         self.batch_size = batch_size
+        self.filename = filename
 
         with open(filename, 'rb') as f:
             self.dataset = pickle.load(f)
